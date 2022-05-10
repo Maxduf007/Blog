@@ -1,20 +1,22 @@
+USE master;
+ALTER DATABASE Blogs SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 DROP DATABASE IF EXISTS Blogs;
 CREATE DATABASE Blogs;
+USE Blogs;
 
-CREATE TABLE LanguagePreferences (
+CREATE TABLE Languages (
 	Id uniqueidentifier default newid(),
 	Name varchar(50) NOT NULL,
 	Abbreviation varchar(5) NOT NULL,
 
-	CONSTRAINT PK_LanguagePreferences_Id PRIMARY KEY CLUSTERED(ID),
-	CONSTRAINT UK_LanguagePreferences_Name UNIQUE(Name),
-	CONSTRAINT UK_LanguagePreferences_Abbreviation UNIQUE(Abbreviation),
+	CONSTRAINT PK_Languages_Id PRIMARY KEY CLUSTERED(ID),
+	CONSTRAINT UK_Language_Name UNIQUE(Name),
+	CONSTRAINT UK_Language_Abbreviation UNIQUE(Abbreviation),
 )
 
 CREATE TABLE Topics (
 	Id uniqueidentifier default newid(),
 	Name varchar(75) NOT NULL,
-	Description varchar(150),
 
 	CONSTRAINT PK_Topics_Id PRIMARY KEY CLUSTERED(Id),
 	CONSTRAINT UK_Topics_Name UNIQUE(Name),
@@ -26,13 +28,13 @@ CREATE TABLE Users (
 	Username varchar(50) NOT NULL,
 	Email varchar(75) NOT NULL,
 	PasswordHash varchar(200) NOT NULL,
-	LanguagePreferenceId uniqueidentifier NOT NULL,
+	LanguageId uniqueidentifier NOT NULL,
 
 	CONSTRAINT PK_Users_Id PRIMARY KEY CLUSTERED(Id),
 	CONSTRAINT UK_Users_Username UNIQUE(Username),
 	CONSTRAINT UK_Users_Email UNIQUE(Email),
-	CONSTRAINT FK_LanguagePreferences_Users FOREIGN KEY(LanguagePreferenceId)
-		REFERENCES LanguagePreferences(Id)
+	CONSTRAINT FK_Languages_Users FOREIGN KEY(LanguageId)
+		REFERENCES Languages(Id)
 )
 
 CREATE TABLE Posts (
@@ -52,19 +54,20 @@ CREATE TABLE Topics_Posts (
 	TopicId uniqueidentifier NOT NULL,
 	PostId uniqueidentifier NOT NULL,
 
-	CONSTRAINT FK_Topics FOREIGN KEY(TopicId)
+	CONSTRAINT FK_Topics_TopicsPosts FOREIGN KEY(TopicId)
 		REFERENCES Topics(Id),
-	CONSTRAINT FK_Posts FOREIGN KEY(PostId)
+	CONSTRAINT FK_Posts_TopicsPosts FOREIGN KEY(PostId)
 		REFERENCES Posts(Id),
 )
 
 CREATE TABLE Users_Posts (
 	UserId uniqueidentifier NOT NULL,
 	PostId uniqueidentifier NOT NULL,
+	IsContributor bit NOT NULL,
 
-	CONSTRAINT FK_Users FOREIGN KEY(UserId)
+	CONSTRAINT FK_Users_UsersPosts FOREIGN KEY(UserId)
 		REFERENCES Users(Id),
-	CONSTRAINT FK_Posts FOREIGN KEY(PostId)
+	CONSTRAINT FK_Posts_UsersPosts FOREIGN KEY(PostId)
 		REFERENCES Posts(Id),
 )
 
@@ -72,8 +75,8 @@ CREATE TABLE Comments (
 	Id uniqueidentifier default newid(),
 	Text varchar(800),
 	CommentParentId uniqueidentifier,
-	PostId uniqueidentifier,
-	UserId uniqueidentifier,
+	PostId uniqueidentifier NOT NULL,
+	UserId uniqueidentifier NOT NULL,
 
 	CONSTRAINT PK_Comments_Id PRIMARY KEY CLUSTERED(Id),
 	CONSTRAINT FK_Comments_CommentParentId FOREIGN KEY(CommentParentId)
