@@ -29,6 +29,8 @@ CREATE TABLE Users (
 	Email varchar(75) NOT NULL,
 	PasswordHash varchar(200) NOT NULL,
 	LanguageId uniqueidentifier NOT NULL,
+	CreatedAt DateTime DEFAULT GETUTCDATE(),
+	UpdatedAt DateTime DEFAULT NULL,
 
 	CONSTRAINT PK_Users_Id PRIMARY KEY CLUSTERED(Id),
 	CONSTRAINT UK_Users_Username UNIQUE(Username),
@@ -39,10 +41,12 @@ CREATE TABLE Users (
 
 CREATE TABLE Posts (
 	Id uniqueidentifier default newid(),
-	Title varchar(100) NOT NULL,
-	MainContent varchar(6000) NOT NULL,
-	Introduction varchar(500),
-	Published DateTime,
+	Title varchar(100) NOT NULL DEFAULT '',
+	MainContent varchar(6000) NOT NULL DEFAULT '',
+	Introduction varchar(500) NOT NULL DEFAULT '',
+	PublishedAt DateTime DEFAULT NULL,
+	CreatedAt DateTime DEFAULT GETUTCDATE(),
+	UpdatedAt DateTime DEFAULT NULL,
 	UserId uniqueidentifier,
 
 	CONSTRAINT PK_Posts_Id PRIMARY KEY CLUSTERED(Id),
@@ -77,6 +81,8 @@ CREATE TABLE Comments (
 	CommentParentId uniqueidentifier,
 	PostId uniqueidentifier NOT NULL,
 	UserId uniqueidentifier NOT NULL,
+	CreatedAt DateTime DEFAULT GETUTCDATE(),
+	UpdatedAt DateTime DEFAULT NULL,
 
 	CONSTRAINT PK_Comments_Id PRIMARY KEY CLUSTERED(Id),
 	CONSTRAINT FK_Comments_CommentParentId FOREIGN KEY(CommentParentId)
@@ -86,3 +92,4 @@ CREATE TABLE Comments (
 	CONSTRAINT FK_Users_Comments FOREIGN KEY(UserId)
 		REFERENCES Users(Id),
 )
+
